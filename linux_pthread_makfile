@@ -1,0 +1,27 @@
+COMPILE_PATH ?= /home/qwer/tools/xilinxSDK/SDK/2019.1/gnu/aarch32/lin/gcc-arm-linux-gnueabi/bin
+
+COMPILE      ?= arm-linux-gnueabihf-
+
+CC = $(COMPILE_PATH)/$(COMPILE)gcc
+LD = $(COMPILE_PATH)/$(COMPILE)ld
+AR = $(COMPILE_PATH)/$(COMPILE)ar
+NM = $(COMPILE_PATH)/$(COMPILE)nm
+LDR = $(COMPILE_PATH)/$(COMPILE)ldr
+DEBUG = $(COMPILE_PATH)/$(COMPILE)gdb
+GdbServer = $(COMPILE_PATH)/gdbserver
+
+gdb_elf:
+	$(CC) hello.c -o gdbhello.elf -g -lpthread
+
+all:hello.o
+	@ $(CC) hello.o -o hello.exe
+
+hello.o:
+	@ $(CC) -c hello.c -o hello.o
+
+version:
+	@ $(CC) --version
+	
+.PHONY:gdb
+gdb:
+	$(DEBUG) gdbhello.elf
