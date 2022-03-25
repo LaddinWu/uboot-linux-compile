@@ -1,0 +1,225 @@
+#***************************************************************************************************
+#* Environment specific settings
+
+# Compiler Environment:C
+BIN_PATH  ?= D:/Xilinx/SDK/2019.1/gnu/aarch32/nt/gcc-arm-none-eabi/bin
+USR_INCLUDE = C:/Xilinx/SDK/2019.1/gnu/aarch32/nt/gcc-arm-none-eabi/arm-none-eabi/libc/usr/include
+USR_LIBS_PATH = C:/Xilinx/SDK/2019.1/gnu/aarch32/nt/gcc-arm-none-eabi/arm-none-eabi/libc/usr/lib/arm/v5te/hard
+
+CC         = "$(BIN_PATH)/arm-none-eabi-gcc.exe"
+AS         = "$(BIN_PATH)/arm-none-eabi-gcc.exe"
+AR         = "$(BIN_PATH)/arm-none-eabi-ar.exe"
+LD         = "$(BIN_PATH)/arm-none-eabi-gcc.exe"
+
+# File Extensions:
+LNK_EXT    = ld
+LIB_EXT    = a
+OUT_EXT    = elf
+
+# Core Selection:
+ARCH=armv7-a
+CORE=cortex-a9+nosimd
+FPU=vfpv3
+FLOAT_POINT=hard
+CODE_STATES=arm
+
+# -mthumb is not used because gcc-4.6.3 generates wrong thumb code when it comes to a mode switch!!
+
+#***************************************************************************************************
+#* Compiler specific settings
+
+# - settings for architecture
+CC_OPTS    = -march=$(ARCH)
+# - settings for core
+CC_OPTS   += -mcpu=$(CORE)
+# - settings for fpu
+CC_OPTS   += -mfpu=$(FPU)
+# - settings for floating-point
+CC_OPTS   += -mfloat-abi=$(FLOAT_POINT)
+# - settings for ARM or Thumb states
+CC_OPTS   += -m$(CODE_STATES)
+
+# - unaligned memory handled by system
+#CC_OPTS  += -mstrict-align
+# - debug info settings
+CC_OPTS   += -g -gdwarf-2 
+# - optimization settings
+CC_OPTS   += -O0
+# - enable all warnings
+CC_OPTS   += -Wall
+# - stop after compiling
+CC_OPTS   += -c
+
+#***************************************************************************************************
+#* Assembler specific settings
+
+# - settings for core
+AS_OPTS    = $(CC_OPTS)
+# - allow C include files
+AS_OPTS   += -x assembler-with-cpp
+
+#***************************************************************************************************
+#* Linker specific settings
+
+# - linker command file
+LD_OPTS    = -T"$(LNK_FILE).$(LNK_EXT)"
+LD_OPTS   += -march=$(ARCH) -mcpu=$(CORE) -mfpu=$(FPU) -mfloat-abi=$(FLOAT_POINT) -m$(CODE_STATES)
+LD_OPTS   += -Wl,-build-id=none -specs=$(PROJ_PATH)/bsp/config/Xilinx.spec
+# - additional output settings
+LD_OPTS   += -Wl,-Map,$(OUT_PATH)/$(APP_NAME).map
+# - enable all warnings
+LD_OPTS   += -Wall
+
+# - default C runtime libraries
+LD_SYSLIBS  = -Wl,--start-group,-lgcc,-lc,-lm,--end-group
+
+#***************************************************************************************************
+#* Archiver specific settings
+
+# - archiver command
+AR_OPTS    = -r
+
+#***************************************************************************************************
+#* Application specific settings
+
+# - application path
+PROJ_PATH     = .
+
+# - application name
+APP_NAME      = pu_debug
+LNK_FILE      = $(PROJ_PATH)/$(APP_NAME)
+
+# RTOS
+VPATH         = $(PROJ_PATH)/os/cert-mpu/ucos/source
+VPATH        += $(PROJ_PATH)/os/cert-mpu/ucos/port
+VPATH        += $(PROJ_PATH)/os/cert-mpu/ucsp/source
+VPATH        += $(PROJ_PATH)/os/cert-mpu/ucsp/port
+VPATH        += $(PROJ_PATH)/os/addons/source
+VPATH        += $(PROJ_PATH)/os/addons/source/certmpu
+
+# BSP
+VPATH        += $(PROJ_PATH)/bsp/config
+VPATH        += $(PROJ_PATH)/bsp/core
+VPATH        += $(PROJ_PATH)/bsp/device
+VPATH        += $(PROJ_PATH)/bsp/driver
+VPATH        += $(PROJ_PATH)/bsp/io_cm_bus
+
+#VPATH        += $(PROJ_PATH)/bsp/_ext
+#VPATH        += $(PROJ_PATH)/bsp/source
+
+#common
+VPATH        += $(PROJ_PATH)/common
+VPATH        += $(PROJ_PATH)/common/src
+
+# LIB
+VPATH        += $(PROJ_PATH)/lib
+
+# APP
+VPATH        += $(PROJ_PATH)/app
+VPATH        += $(PROJ_PATH)/app/alg
+VPATH        += $(PROJ_PATH)/app/bsp_cfg
+VPATH        += $(PROJ_PATH)/app/cfg
+VPATH        += $(PROJ_PATH)/app/diag
+VPATH        += $(PROJ_PATH)/app/inc
+VPATH        += $(PROJ_PATH)/app/led
+VPATH        += $(PROJ_PATH)/app/os_cfg
+VPATH        += $(PROJ_PATH)/app/safety_layer
+VPATH        += $(PROJ_PATH)/app/diag/instructions
+VPATH        += $(PROJ_PATH)/app/diag/marchC
+VPATH        += $(PROJ_PATH)/app/diag/registers
+VPATH        += $(PROJ_PATH)/app/diag/wdog
+VPATH        += $(PROJ_PATH)/app/inc
+VPATH        += $(PROJ_PATH)/app/main
+VPATH        += $(PROJ_PATH)/app/task
+VPATH        += $(PROJ_PATH)/app/data_area
+VPATH        += $(PROJ_PATH)/app/data_area/votedata_com
+VPATH        += $(PROJ_PATH)/app/data_area/iodata_com
+VPATH        += $(PROJ_PATH)/app/data_area/SafeStationCom
+VPATH        += $(PROJ_PATH)/app/triple_sync
+VPATH        += $(PROJ_PATH)/app/xnet
+VPATH        += $(PROJ_PATH)/app/xnet/link
+# A Demo, need be removed after set up the application.
+
+VPATH        += $(PROJ_PATH)/app/app_test
+
+# - include path
+INC_PATH      = $(VPATH)
+INC_PATH      +=$(USR_INCLUDE)
+
+# - library path (e.g. pre-compiled bsp library. Keep empty, if no library used)
+LD_LIBS       +=-L$(USR_LIBS_PATH)
+
+CC_OPTS   += -DVFP_DREG=32
+
+#***************************************************************************************************
+#* Standard behavior
+OBJ_PATH      = $(PROJ_PATH)/obj
+OUT_PATH      = $(OBJ_PATH)/out
+
+# Generate include search path
+EMPTY:=
+SPACE:= $(EMPTY) $(EMPTY)
+COMMA:= ,
+INC:= $(SPACE)-I
+INC_DIRS     += -I$(subst $(SPACE),$(INC),$(subst src,h,$(INC_PATH)))
+
+# Generate object list
+find_files    = $(wildcard $(dir)/*.c)
+find_files   += $(wildcard $(dir)/*.S)
+find_files   += $(wildcard $(dir)/*.asm)
+src_files     = $(foreach dir,$(VPATH),$(find_files))
+OBJS          = $(subst $(PROJ_PATH)/,$(OBJ_PATH)/,$(addsuffix .o,$(basename $(src_files))))
+
+# Generate resulting output filename
+OUT_FILE      = $(OUT_PATH)/$(APP_NAME).$(OUT_EXT)
+
+#***************************************************************************************************
+#* Targets
+
+all: clean target
+
+target: $(OBJS)
+	@echo Linking : $(OUT_FILE)
+	@if ! test -d $(OBJ_PATH); then mkdir -p $(OBJ_PATH); fi
+	@if ! test -d $(OUT_PATH); then mkdir -p $(OUT_PATH); fi
+	@$(LD) $(LD_OPTS) -o $(OUT_FILE) $(OBJS) $(LD_LIBS) $(LD_SYSLIBS)
+	arm-none-eabi-size $(OUT_FILE)
+	
+clean:
+	@if ! test -d $(OBJ_PATH); then mkdir -p $(OBJ_PATH); fi
+	@if ! test -d $(OUT_PATH); then mkdir -p $(OUT_PATH); fi
+	@echo 'Clean:'$(OBJS)
+	@rm -f $(OBJS)
+	@echo 'Clean:'$(OUT_PATH)/$(APP_NAME).map
+	@rm -f $(OUT_PATH)/$(APP_NAME).map
+	@echo 'Clean:'$(OUT_PATH)/$(APP_NAME).$(OUT_EXT)
+	@rm -f $(OUT_PATH)/$(APP_NAME).$(OUT_EXT)
+
+version:
+	@make --version
+	@$(CC) --version
+	@$(AS) --version
+	@$(LD) --version
+
+option:
+	@echo Compiler:  $(CC) $(CC_OPTS)
+	@echo Assembler: $(AS) $(AS_OPTS)
+	@echo Linker:    $(LD) $(LD_OPTS)
+
+#***************************************************************************************************
+#* General Rules
+
+$(OBJ_PATH)/%.o: $(PROJ_PATH)/%.c
+	@echo Compile : $<
+	@if ! test -d $(dir $@); then mkdir -p $(dir $@); fi
+	@$(CC) $(CC_OPTS) $(INC_DIRS) -o "$@" "$<"
+
+$(OBJ_PATH)/%.o: $(PROJ_PATH)/%.S
+	@echo Assemble: $<
+	@if ! test -d $(dir $@); then mkdir -p $(dir $@); fi
+	@$(AS) $(AS_OPTS) $(INC_DIRS) -o "$@" "$<"
+
+$(OBJ_PATH)/%.o: $(PROJ_PATH)/%.asm
+	@echo Assemble: $<
+	@if ! test -d $(dir $@); then mkdir -p $(dir $@); fi
+	@$(AS) $(AS_OPTS) $(INC_DIRS) -o "$@" "$<"
