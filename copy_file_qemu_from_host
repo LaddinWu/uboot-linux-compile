@@ -1,0 +1,2 @@
+scp qwer@10.0.2.2:/home/qwer/wufile/c_code/linux_thread/gdbhello.elf ./
+gdb ***.elf
